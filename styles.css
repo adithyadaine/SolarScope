@@ -1,0 +1,578 @@
+:root {
+  --bg-color: #f3f4f6; /* Light background */
+  --text-color: #333; /* Light text */
+  --button-bg: #007bff;
+  --button-hover-bg: #0056b3;
+  --card-bg: #ffffff;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode {
+  --bg-color: #121212; /* Dark background */
+  --text-color: #ffffff; /* Dark text */
+  --button-bg: #1e90ff;
+  --button-hover-bg: #1c86ee;
+  --card-bg: #1e1e1e;
+  --card-shadow: rgba(255, 255, 255, 0.1);
+}
+
+/* General Styles */
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f3f4f6;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 20px auto;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* Header */
+header {
+  text-align: center;
+  padding: 20px 10px;
+}
+
+header img {
+  max-width: 100px;
+}
+
+header h1 {
+  font-size: 2.2em;
+  color: #222;
+}
+
+header p {
+  color: #555;
+}
+
+/* Input Section */
+.input-section {
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-section input {
+  padding: 10px;
+  font-size: 1em;
+  width: 80%;
+  max-width: 400px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.input-section button {
+  padding: 10px 20px;
+  font-size: 1em;
+  color: #fff;
+  background: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.input-section button:hover {
+  background: #0056b3;
+}
+
+#suggestionList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 85%; /* Moderately narrow */
+  max-width: 400px; /* Maximum limit for width */
+  background: #fff;
+  /* border: 1px solid #ccc; */
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 1em; /* Standard font size for readability */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for better visibility */
+}
+
+#suggestionList li {
+  padding: 10px 15px; /* Comfortable padding */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Ensures spacing between text and icons */
+  transition: background 0.2s ease;
+}
+
+#suggestionList li img {
+  max-width: 25px; /* Appropriately sized weather icons */
+  margin-left: 10px;
+}
+
+#suggestionList li:hover {
+  background: #f4f4f4; /* Slight hover effect for interactivity */
+}
+
+.weather-info {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Balanced gap between weather elements */
+  font-size: 0.9em; /* Slightly smaller weather info text */
+}
+
+
+/* Map Section */
+#map {
+  height: 300px;
+  border-radius: 10px;
+  margin: 10px auto;
+}
+
+#map-overlay.active {
+  display: none;
+}
+
+/* Map Container */
+#map-container {
+  position: relative;
+  width: 100%;
+  height: 300px; /* Adjust height as needed */
+  margin-top: 10px;
+}
+
+/* Map */
+#map {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}
+
+/* Overlay */
+#map-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7); /* Semi-transparent overlay */
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2em;
+  color: #333;
+  visibility: visible; /* Overlay visible by default */
+}
+
+#map-overlay.hidden {
+  visibility: hidden; /* Hide overlay when interaction is enabled */
+}
+
+/* Basic Toggle Switch */
+.toggle-switch-update {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between the toggle and label text */
+  cursor: pointer;
+  margin-top: 10px; /* Adds spacing from the element above */
+}
+
+.toggle-switch-update .slider {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 34px;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-switch-update .slider:before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background-color: white;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s ease;
+}
+
+.toggle-switch-update input {
+  display: none; /* Hide the checkbox */
+}
+
+.toggle-switch-update input:checked + .slider {
+  background-color: #007bff;
+}
+
+.toggle-switch-update input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.toggle-switch-update .label-text {
+  font-size: 1em;
+  color: #333;
+}
+
+
+/* Toggle Switch */
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  display: none; /* Hide the checkbox */
+}
+
+.slider {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 34px;
+  transition: background-color 0.3s ease;
+}
+
+.slider:before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background-color: white;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s ease;
+}
+
+input:checked + .slider {
+  background-color: #007bff;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.label-text {
+  font-size: 0.9em;
+  color: #333;
+  user-select: none;
+}
+
+
+/* Info Section */
+#info-container {
+  display: flex;
+  flex-direction: row; /* Arrange sections side by side */
+  gap: 20px; /* Space between the sections */
+  margin-top: 20px;
+}
+
+#results-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+#results-grid p {
+  margin: 0;
+  padding: 10px;
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95em;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+#results-grid p i {
+  font-size: 1.2em;
+  color: #007bff;
+}
+
+#results-grid p#place-container {
+  overflow: hidden;
+  white-space: nowrap; /* Prevents wrapping */
+  text-overflow: ellipsis; /* Adds "..." for overflow text */
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease; /* Smooth transition */
+  max-width: 100%; /* Ensures the content fits within its container */
+}
+
+#results-grid p#place-container:hover {
+  white-space: normal; /* Allows wrapping */
+  text-overflow: unset; /* Removes ellipsis */
+  overflow: visible; /* Ensures full content is visible */
+  max-height: 100%; /* Expands to fit content */
+  z-index: 10; /* Brings the element to the front */
+  background: #f9f9f9; /* Optional: Distinct background when hovered */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Elevates on hover */
+  padding: 10px; /* Adds space for clarity */
+}
+
+#results button {
+  margin-top: 20px; /* Optional: Adds some space above the button */
+  padding: 10px 20px;
+  font-size: 1em;
+  color: #fff;
+  background: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#results button:hover {
+  background: #0056b3;
+}
+
+#results, #weather-section {
+  flex: 1; /* Ensure both sections take equal space */
+  min-width: 300px; /* Ensure proper sizing on smaller screens */
+}
+
+#weather-section {
+  text-align: center; /* Center content for weather section */
+}
+
+@media (max-width: 768px) {
+
+  #info-container {
+    flex-direction: column; /* Stack sections on smaller screens */
+  }
+
+  #results-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+#weather-section {
+  display: flex; /* Enable flexbox */
+  flex-direction: column; /* Arrange content vertically */
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  text-align: center; /* Ensure text is centered */
+  padding: 20px; /* Add some padding for spacing */
+  background: #f9f9f9; /* Maintain a distinct background */
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.weather-description {
+  text-align: center;
+  font-size: 1.1em;
+  color: #444;
+}
+
+#hourly-forecast {
+  display: flex; /* Arrange forecast items horizontally */
+  flex-wrap: nowrap; /* Prevent items from wrapping to the next line */
+  overflow-x: auto; /* Enable horizontal scrolling */
+  gap: 10px; /* Space between the cards */
+  padding: 10px 0;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.hourly-card {
+  flex: 0 0 100px; /* Fixed width for each hourly card */
+  max-width: 100px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  text-align: center;
+  min-width: 100px; /* Ensures cards don't shrink too much */
+}
+
+.hourly-card img {
+  max-width: 30px; /* Icon size */
+  margin: 5px 0;
+}
+
+.hourly-card p {
+  margin: 5px 0;
+  font-size: 0.9em;
+}
+
+#forecast {
+  display: flex;
+  flex-wrap: nowrap; /* Ensures all cards stay in a single row */
+  gap: 10px; /* Minimal gap between cards */
+  justify-content: center; /* Centers the cards horizontally */
+  overflow-x: auto; /* Allows horizontal scrolling if the screen is too narrow */
+  padding: 10px 0;
+}
+
+.forecast-card {
+  flex: 0 0 150px; /* Fixed width for each card */
+  max-width: 150px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  text-align: center;
+}
+
+.forecast-card img {
+  max-width: 40px; /* Icon size */
+  margin: 10px 0;
+}
+
+.forecast-card p {
+  margin: 5px 0;
+  font-size: 0.9em; /* Compact text */
+}
+
+#favorites-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#favorites-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+#favorites-list span {
+  flex: 1; /* Take up available space */
+  text-align: left; /* Align text to the left */
+}
+
+#favorites-list img {
+  width: 30px;
+  height: 30px;
+}
+
+#favorites-list .button-container {
+  display: flex;
+  gap: 10px; /* Adds spacing between the buttons */
+}
+
+#favorites-list button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#favorites-list .view-favorite {
+  background-color: #007bff;
+  color: #fff;
+}
+
+#favorites-list .remove-favorite {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+#favorites-list button:hover {
+  opacity: 0.9;
+}
+
+#favorites-section, #map-section, #results, #hourly-forecast-section, #weather-section, #forecast-section {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#results p, #weather-section p, #forecast-section p {
+  margin: 10px 0;
+}
+
+#map-section h2, #results h2, #weather-section h2, #hourly-forecast-section h2, #forecast-section h2, #favorites-section h2{
+  margin: 0 0 15px;
+  font-size: 1.5em;
+  color: #222;
+  text-align: left;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 5px;
+}
+
+#favorites-section button {
+  padding: 10px 10px; /* Adjust the padding values as needed */
+  font-size: 1em; /* Standard font size for readability */
+  color: #fff; /* White text color */
+  background-color: #dc3545; /* Red background to indicate a clear action */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px; /* Add spacing above the button */
+  display: block; /* Ensures the button takes full width within its container */
+}
+
+#favorites-section button:hover {
+  background-color: #c82333; /* Slightly darker red on hover */
+}
+
+#results-grid p#air_quality-container {
+  font-weight: bold;
+  color: #555;
+}
+
+
+button {
+  padding: 10px 20px;
+  font-size: 1em;
+  color: #fff;
+  background: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 0.9em;
+  color: #777;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #info-container {
+    flex-direction: column;
+  }
+
+  .forecast-card {
+    flex: 1 1 calc(45% - 10px); /* Adjusted for smaller screens */
+    max-width: calc(45% - 10px);
+}
+
+@media (max-width: 480px) {
+  .forecast-card {
+    flex: 1 1 100%; /* Stacks cards on small screens */
+    max-width: 100%;
+  }
+}
