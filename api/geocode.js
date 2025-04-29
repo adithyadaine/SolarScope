@@ -1,5 +1,5 @@
 // api/geocode.js
-import fetch from 'node-fetch'; // Use node-fetch or built-in fetch
+const fetch = require('node-fetch');
 
 export default async function handler(request, response) {
   // Allow requests from any origin (adjust in production if needed)
