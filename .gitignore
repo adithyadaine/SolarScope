@@ -1,0 +1,12 @@
+# .gitignore
+
+# Ignore API keys file
+apikeys.js
+
+# Ignore node_modules (if you ever add build tools)
+node_modules/
+
+# Other files to ignore (e.g., OS files, logs)
+.DS_Store
+*.log
+*.tmp

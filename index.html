@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sunrise and Sunset Tracker</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
   <link rel="stylesheet" href="styles.css">
@@ -13,92 +13,114 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body>
-    <div class="container">
-      <header>
-        <img src="./images/sun.png" alt="Sun icon" id="sunImage"><br>
-        <h1>Sunrise & Sunset Tracker</h1>
-        <p>Discover sunrise, sunset, and weather details for any location.</p>
-      </header>
-      
-      <main>
-          <section class="input-section">
-            <input type="text" id="locationInput" placeholder="Enter a location (e.g., city name)" oninput="debounce(fetchSuggestions, 300)">
-            <ul id="suggestionList"></ul>
-            <div class="buttons">
-              <button onclick="clearInput()">Clear</button>
-            </div>
-
-            <label class="toggle-switch-update">
-              <input type="checkbox" id="autoUpdateToggle" onchange="toggleAutoUpdate()">
-              <span class="slider"></span>
-              <span class="label-text">Auto Update</span>
-            </label>
-          </section>
-
-      <section id="favorites-section">
-        <h2>Your Favorites:</h2>
-        <button onclick="clearAllFavorites()">Clear All Favorites</button>
-
-        <ul id="favorites-list"></ul>
-      </section>
-
-      <section id="map-section">
-        <h2>Select a Location on the Map:</h2>
-        <label class="toggle-switch">
-          <input type="checkbox" id="toggle-map-interaction">
-          <span class="slider"></span>
-          <span class="label-text">Enable Map Interaction</span>
-        </label>
-        <div id="map-container">
-          <div id="map"></div>
-          <div id="map-overlay">Map Interaction Disabled</div>
-        </div>
-      </section>
-      
-        <div id="info-container">
-          <section id="results">
-            <h2>Today's Information:</h2>
-            <div id="results-grid">
-              <p><i class="fas fa-clock"></i> <strong>Current Time:</strong> <span id="current_time">-</span></p>
-              <p id="place-container"><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> <span id="place">-</span></p>
-              <p><i class="fas fa-globe"></i> <strong>Timezone:</strong> <span id="timezone">-</span></p>
-              <p><i class="fas fa-sun"></i> <strong>Sunrise:</strong> <span id="sunrise">-</span></p>
-              <p><i class="fas fa-moon"></i> <strong>Sunset:</strong> <span id="sunset">-</span></p>
-              <p><i class="fas fa-cloud-sun"></i> <strong>Dawn:</strong> <span id="dawn">-</span></p>
-              <p><i class="fas fa-cloud-moon"></i> <strong>Dusk:</strong> <span id="dusk">-</span></p>
-              <p><i class="fas fa-hourglass-half"></i> <strong>Day Length:</strong> <span id="day_length">-</span></p>
-              <p><i class="fas fa-stopwatch"></i> <strong>Solar Noon:</strong> <span id="solar_noon">-</span></p>
-              <p><i class="fas fa-thermometer-half"></i> <strong>Current Temperature:</strong> <span id="current_temp">-</span></p>
-              <p><i class="fas fa-temperature-high"></i> <strong>Feels Like:</strong> <span id="feels_like">-</span></p>
-              <p><i class="fas fa-wind"></i> <strong>Air Quality Index:</strong> <span id="air_quality">-</span></p>
-
-            </div>
-          </section>
-  
-        <section id="weather-section">
-          <h2>Weather Condition:</h2>
-          <!-- Container for Lottie Animation -->
-          <div id="weatherAnimation" style="width: 300px; height: 300px; margin: auto;"></div>
-        </section>
-        </div> 
-
-        <section id="hourly-forecast-section">
-          <h2>Hourly Forecast:</h2>
-          <div id="hourly-forecast"></div> <!-- Hourly forecast will be displayed here -->
-        </section>        
-
-      <section id="forecast-section">
-        <h2>Weather Forecast:</h2>
-        <div id="forecast"></div>
-      </section>    
-
-      </main>
-  
-      <footer>
-        <p>Built with ❤️ to track the sun and weather.</p>
-      </footer>
+  <div class="container">
+    <header>
+      <img src="./images/sun.png" alt="Sun icon" id="sunImage">
+      <h1>Sunrise & Sunset Tracker</h1>
+      <p>Discover sunrise, sunset, and weather details for any location.</p>
+      <button id="theme-toggle" class="theme-btn">
+        <i class="fas fa-moon"></i> Switch to Dark Mode
+      </button>
+    </header>    
+    
+    <div class="search-bar">
+      <input type="text" id="locationInput" placeholder="Enter a location (e.g., city name)" oninput="debounce(fetchSuggestions, 300)">
+      <button onclick="clearInput()" class="clear-btn">Clear</button>
+      <ul id="suggestionList"></ul>
+      <label class="toggle-switch-update">
+        <input type="checkbox" id="autoUpdateToggle" onchange="toggleAutoUpdate()">
+        <span class="slider"></span>
+        <span class="label-text">Auto Update</span>
+      </label>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
-    <script src="script.js"></script>
-  </body>
+
+    <main class="dashboard">
+      <!-- First row -->
+      <div class="dashboard-row">
+        <!-- Weather card -->
+        <div class="card weather-card">
+          <h2>Weather Condition</h2>
+          <div id="weatherAnimation" class="weather-animation"></div>
+          <div class="weather-description-container"></div>
+        </div>
+        
+        <!-- Map card -->
+        <div class="card map-card">
+          <h2>Select Location on Map</h2>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-map-interaction">
+            <span class="slider"></span>
+            <span class="label-text">Enable Map Interaction</span>
+          </label>
+          <div id="map-container">
+            <div id="map"></div>
+            <div id="map-overlay">Map Interaction Disabled</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Second row -->
+      <div class="dashboard-row">
+        <!-- Today's Information -->
+        <div class="card info-card">
+          <div class="card-header">
+            <h2>Today's Information</h2>
+            <button id="add-favorite" class="action-btn">Add to Favorites</button>
+          </div>
+          <div id="results-grid">
+            <div class="info-item"><i class="fas fa-clock"></i> <span class="label">Current Time:</span> <span id="current_time" class="value">-</span></div>
+            <div class="info-item"><i class="fas fa-map-marker-alt"></i> <span class="label">Location:</span> <span id="place" class="value">-</span></div>
+            <div class="info-item"><i class="fas fa-globe"></i> <span class="label">Timezone:</span> <span id="timezone" class="value">-</span></div>
+            <div class="info-item"><i class="fas fa-sun"></i> <span class="label">Sunrise:</span> <span id="sunrise" class="value">-</span></div>
+            <div class="info-item"><i class="fas fa-moon"></i> <span class="label">Sunset:</span> <span id="sunset" class="value">-</span></div>
+            <div class="info-item"><i class="fas fa-cloud-sun"></i> <span class="label">Dawn:</span> <span id="dawn" class="value">-</span></div>
+            <div class="info-item"><i class="fas fa-cloud-moon"></i> <span class="label">Dusk:</span> <span id="dusk" class="value">-</span></div>
+            <div class="info-item"><i class="fas fa-hourglass-half"></i> <span class="label">Day Length:</span> <span id="day_length" class="value">-</span></div>
+            <div class="info-item"><i class="fas fa-stopwatch"></i> <span class="label">Solar Noon:</span> <span id="solar_noon" class="value">-</span></div>
+            <div class="info-item"><i class="fas fa-thermometer-half"></i> <span class="label">Temperature:</span> <span id="current_temp" class="value">-</span></div>
+            <div class="info-item"><i class="fas fa-temperature-high"></i> <span class="label">Feels Like:</span> <span id="feels_like" class="value">-</span></div>
+            <div class="info-item"><i class="fas fa-wind"></i> <span class="label">Air Quality:</span> <span id="air_quality" class="value">-</span></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Third row -->
+      <div class="dashboard-row">
+        <!-- Hourly forecast -->
+        <div class="card forecast-card">
+          <h2>Hourly Forecast</h2>
+          <div id="hourly-forecast" class="forecast-container"></div>
+        </div>
+      </div>
+      
+      <!-- Fourth row -->
+      <div class="dashboard-row">
+        <!-- Weather forecast -->
+        <div class="card forecast-card">
+          <h2>Weather Forecast</h2>
+          <div id="forecast" class="forecast-container"></div>
+        </div>
+      </div>
+      
+      <!-- Fifth row -->
+      <div class="dashboard-row">
+        <!-- Favorites -->
+        <div class="card favorites-card">
+          <div class="card-header">
+            <h2>Your Favorites</h2>
+            <button onclick="clearAllFavorites()" class="action-btn danger">Clear All</button>
+          </div>
+          <ul id="favorites-list"></ul>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>Built with ❤️ to track the sun and weather.</p>
+    </footer>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
+  <script src="apikeys.js"></script>
+  <script src="script.js"></script>
+</body>
 </html>
