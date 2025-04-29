@@ -1,0 +1,23 @@
+{
+  "name": "solarscope",
+  "version": "1.0.0",
+  "description": "A web application to display sunrise, sunset times, current weather conditions, and forecasts for any location worldwide. Users can search for locations, select points on an interactive map, save favorite locations, and toggle between light and dark themes.",
+  "main": "apikeys.example.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adithyadaine/SolarScope.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adithyadaine/SolarScope/issues"
+  },
+  "homepage": "https://github.com/adithyadaine/SolarScope#readme",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
