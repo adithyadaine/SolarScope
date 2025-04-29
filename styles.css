@@ -396,7 +396,9 @@ body.dark-mode .card:hover {
 }
 
 #map-container {
-  position: relative;
+  position: relative; /* Add this if not already present */
+  z-index: 1; /* Establish a base stacking context for the map area */
+  /* ... other map-container styles ... */
   height: 300px;
   border-radius: 8px;
   overflow: hidden;
@@ -675,6 +677,7 @@ footer {
   }
 }
 
-.leaflet-control-zoom {
-  z-index: 1001; /* Higher than suggestionList's 1000 */
+.leaflet-control-container {
+  position: relative; /* Ensure positioning context for z-index */
+  z-index: 1001 !important; /* Higher than suggestionList - Use !important temporarily for testing */
 }
