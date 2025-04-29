@@ -415,11 +415,63 @@ async function fetchWeather(lat, lng) {
 
 let debounceTimer;
 
+// async function fetchSuggestions() {
+//   const input = document.getElementById('locationInput').value.trim();
+//   const suggestionList = document.getElementById('suggestionList');
+//   suggestionList.innerHTML = '';
+//   if (!input) return;
+//   try {
+//     // Call Vercel function for geocoding suggestions
+//     const locationResponse = await fetch(
+//       `/api/geocode?query=${encodeURIComponent(input)}`
+//     );
+//     if (!locationResponse.ok) {
+//       const errorData = await locationResponse.json().catch(() => ({}));
+//       throw new Error(
+//         `Suggestion API Error: ${locationResponse.status} - ${errorData.error || locationResponse.statusText}`
+//       );
+//     }
+//     const locationData = await locationResponse.json();
+//     const results = locationData.results;
+//     if (results.length === 0) {
+//       const noResult = document.createElement('li');
+//       noResult.textContent = 'No suggestions found.';
+//       noResult.style.color = '#999';
+//       noResult.style.pointerEvents = 'none';
+//       suggestionList.appendChild(noResult);
+//       return;
+//     }
+//     for (const result of results) {
+//       const { formatted, geometry } = result;
+//       const { lat, lng } = geometry;
+//       const suggestion = document.createElement('li');
+//       suggestion.innerHTML = `<span>${formatted}</span>`;
+//       suggestion.onclick = async () => {
+//         document.getElementById('locationInput').value = formatted;
+//         suggestionList.innerHTML = '';
+//         map.setView([lat, lng], 10);
+//         if (marker) {
+//           marker.setLatLng([lat, lng]);
+//         } else {
+//           marker = L.marker([lat, lng]).addTo(map);
+//         }
+//         await fetchDataByCoordinates(lat, lng);
+//       };
+//       suggestionList.appendChild(suggestion);
+//     }
+//   } catch (error) {
+//     console.error('Error fetching suggestions:', error);
+//     suggestionList.innerHTML =
+//       '<li style="color: red; pointer-events: none;">Error fetching suggestions.</li>';
+//   }
+// }
+
 async function fetchSuggestions() {
   const input = document.getElementById('locationInput').value.trim();
   const suggestionList = document.getElementById('suggestionList');
   suggestionList.innerHTML = '';
   if (!input) return;
+
   try {
     // Call Vercel function for geocoding suggestions
     const locationResponse = await fetch(
@@ -433,19 +485,62 @@ async function fetchSuggestions() {
     }
     const locationData = await locationResponse.json();
     const results = locationData.results;
+
     if (results.length === 0) {
       const noResult = document.createElement('li');
       noResult.textContent = 'No suggestions found.';
-      noResult.style.color = '#999';
+      noResult.style.color = 'var(--text-secondary)'; // Use CSS variable
       noResult.style.pointerEvents = 'none';
       suggestionList.appendChild(noResult);
       return;
     }
-    for (const result of results) {
+
+    // Use Promise.all to fetch weather for all suggestions concurrently
+    const suggestionPromises = results.map(async (result) => {
       const { formatted, geometry } = result;
       const { lat, lng } = geometry;
+
+      let weatherInfo = '';
+      try {
+        // --- Fetch weather for the icon ---
+        const weatherResponse = await fetch(
+          `/api/weather?type=current&lat=${lat}&lon=${lng}` // Call your Vercel weather function
+        );
+        if (weatherResponse.ok) {
+          const weatherData = await weatherResponse.json();
+          if (weatherData.weather && weatherData.weather[0]) {
+            const temperature = Math.round(weatherData.main.temp);
+            const icon = weatherData.weather[0].icon;
+            const iconUrl = `https://openweathermap.org/img/wn/${icon}.png`; // Use smaller .png for list
+
+            weatherInfo = `
+              <div class="weather-info">
+                <img src="${iconUrl}" alt="Weather Icon" style="width: 25px; height: 25px;">
+                <span>${temperature}°C</span>
+              </div>
+            `;
+          }
+        }
+        // --- End fetch weather ---
+      } catch (weatherError) {
+        console.warn(`Could not fetch weather for suggestion "${formatted}":`, weatherError);
+        // Keep weatherInfo empty if fetch fails
+      }
+
+      // Return an object containing the data needed to create the list item
+      return { formatted, lat, lng, weatherInfo };
+    });
+
+    // Wait for all weather fetches to complete (or fail)
+    const suggestionsData = await Promise.all(suggestionPromises);
+
+    // Now create and append list items
+    suggestionsData.forEach(({ formatted, lat, lng, weatherInfo }) => {
       const suggestion = document.createElement('li');
-      suggestion.innerHTML = `<span>${formatted}</span>`;
+      suggestion.innerHTML = `
+        <span>${formatted}</span>
+        ${weatherInfo}
+      `;
       suggestion.onclick = async () => {
         document.getElementById('locationInput').value = formatted;
         suggestionList.innerHTML = '';
@@ -458,13 +553,15 @@ async function fetchSuggestions() {
         await fetchDataByCoordinates(lat, lng);
       };
       suggestionList.appendChild(suggestion);
-    }
+    });
+
   } catch (error) {
     console.error('Error fetching suggestions:', error);
     suggestionList.innerHTML =
-      '<li style="color: red; pointer-events: none;">Error fetching suggestions.</li>';
+      '<li style="color: var(--danger-color); pointer-events: none;">Error fetching suggestions.</li>'; // Use CSS variable
   }
 }
+
 
 function debounce(func, delay) {
   clearTimeout(debounceTimer);
