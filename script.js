@@ -1,22 +1,12 @@
-// API Keys are now expected to be loaded from apikeys.js into window.apiKeys
-// Example: window.apiKeys = { openCageKey: "...", openWeatherKey: "...", weatherApiKey: "..." };
+// API Keys are no longer needed directly in this client-side script.
+// Calls will be made to Vercel Serverless Functions in the /api directory.
 
 // DIsplay map contents
 let map;
 let marker;
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Check if API keys are loaded
-  if (typeof window.apiKeys === 'undefined') {
-    console.error(
-      'API keys not found. Make sure apikeys.js is loaded correctly before script.js.'
-    );
-    alert(
-      'API keys are missing. Please ensure apikeys.js is set up correctly. See apikeys.example.js.'
-    );
-    // Optionally disable functionality or show a persistent error message
-    return; // Stop further execution if keys are missing
-  }
+  // No API key check needed here anymore
 
   map = L.map('map').setView([51.505, -0.09], 2);
 
@@ -72,12 +62,16 @@ async function showtime() {
     return;
   }
   try {
-    // Use window.apiKeys
+    // Call Vercel function for geocoding
     const locResponse = await fetch(
-      `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(locationInput)}&key=${window.apiKeys.openCageKey}`
+      `/api/geocode?query=${encodeURIComponent(locationInput)}`
     );
     if (!locResponse.ok) {
-      throw new Error(`API Error: ${locResponse.status}`);
+      // Try to get error message from Vercel function response
+      const errorData = await locResponse.json().catch(() => ({})); // Catch if response isn't JSON
+      throw new Error(
+        `API Error: ${locResponse.status} - ${errorData.error || locResponse.statusText}`
+      );
     }
     const locData = await locResponse.json();
     if (!locData || locData.results.length === 0) {
@@ -146,22 +140,19 @@ function clearInput() {
 let currentLat, currentLng;
 
 async function fetchDataByCoordinates(lat, lng) {
-  // Check for keys again, in case they weren't loaded initially
-  if (typeof window.apiKeys === 'undefined') {
-    alert('API keys are missing. Cannot fetch data.');
-    return;
-  }
+  // No API key check needed here
 
   try {
     currentLat = lat;
     currentLng = lng;
 
-    // Use window.apiKeys
-    const locationResponse = await fetch(
-      `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lng}&key=${window.apiKeys.openCageKey}`
-    );
+    // Call Vercel function for reverse geocoding
+    const locationResponse = await fetch(`/api/geocode?lat=${lat}&lng=${lng}`);
     if (!locationResponse.ok) {
-      throw new Error(`OpenCage API error: ${locationResponse.status}`);
+      const errorData = await locationResponse.json().catch(() => ({}));
+      throw new Error(
+        `Geocode API Error: ${locationResponse.status} - ${errorData.error || locationResponse.statusText}`
+      );
     }
     const locationData = await locationResponse.json();
     const location = locationData.results[0]?.formatted || 'Unknown location';
@@ -171,6 +162,7 @@ async function fetchDataByCoordinates(lat, lng) {
     document.getElementById('place').textContent = location;
     document.getElementById('timezone').textContent = timezone;
 
+    // These calls now go to your Vercel API endpoints
     await fetchSunriseSunset(lat, lng, timezone);
     await fetchWeather(lat, lng);
     await fetchForecast(lat, lng);
@@ -189,17 +181,23 @@ async function fetchDataByCoordinates(lat, lng) {
     }
   } catch (error) {
     console.error('Error fetching data by coordinates:', error);
-    alert('Failed to fetch location data. Please try again.');
+    alert(`Failed to fetch location data: ${error.message}`);
   }
 }
 
 async function fetchSunriseSunset(lat, lng, timezone) {
   try {
-    const response = await fetch(
-      `https://api.sunrisesunset.io/json?lat=${lat}&lng=${lng}`
-    );
+    // Call Vercel function for sunrise/sunset
+    const response = await fetch(`/api/sunrisesunset?lat=${lat}&lng=${lng}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        `Sunrise/Sunset API Error: ${response.status} - ${errorData.error || response.statusText}`
+      );
+    }
     const data = await response.json();
     if (data.status !== 'OK') {
+      // Handle API-specific errors if needed
       throw new Error(data.status || 'Sunrise/Sunset API error');
     }
     document.getElementById('sunrise').textContent =
@@ -216,6 +214,11 @@ async function fetchSunriseSunset(lat, lng, timezone) {
     console.error('Error fetching sunrise/sunset:', error);
     document.getElementById('sunrise').textContent = 'Error';
     document.getElementById('sunset').textContent = 'Error';
+    // Clear other fields too
+    document.getElementById('dawn').textContent = 'Error';
+    document.getElementById('dusk').textContent = 'Error';
+    document.getElementById('day_length').textContent = 'Error';
+    document.getElementById('solar_noon').textContent = 'Error';
   }
 }
 
@@ -272,11 +275,16 @@ async function addFavorite(name, lat, lng) {
     return;
   }
   try {
-    // Use window.apiKeys
+    // Call Vercel function for current weather (to get icon)
     const weatherResponse = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${window.apiKeys.openWeatherKey}&units=metric`
+      `/api/weather?type=current&lat=${lat}&lon=${lng}`
     );
-    if (!weatherResponse.ok) throw new Error('Failed to fetch weather data');
+    if (!weatherResponse.ok) {
+      const errorData = await weatherResponse.json().catch(() => ({}));
+      throw new Error(
+        `Weather API Error: ${weatherResponse.status} - ${errorData.error || weatherResponse.statusText}`
+      );
+    }
     const weatherData = await weatherResponse.json();
     const weatherIcon = `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`;
     favorites.push({ name, lat, lng, weatherIcon });
@@ -284,6 +292,7 @@ async function addFavorite(name, lat, lng) {
     loadFavorites();
   } catch (error) {
     console.error('Error fetching weather data for favorite icon:', error);
+    // Add favorite with default icon if fetch fails
     favorites.push({ name, lat, lng, weatherIcon: './images/sun.png' });
     saveFavorites();
     loadFavorites();
@@ -303,11 +312,13 @@ async function fetchHourlyForecast(lat, lng) {
   if (!hourlyForecastContainer) return;
   hourlyForecastContainer.innerHTML = '<p>Loading hourly forecast...</p>';
   try {
-    // Use window.apiKeys
-    const hourlyForecastUrl = `https://api.weatherapi.com/v1/forecast.json?key=${window.apiKeys.weatherApiKey}&q=${lat},${lng}&hours=12`;
-    const forecastResponse = await fetch(hourlyForecastUrl);
+    // Call Vercel function for hourly forecast
+    const forecastResponse = await fetch(`/api/hourly?lat=${lat}&lng=${lng}`);
     if (!forecastResponse.ok) {
-      throw new Error('Hourly Forecast API failed');
+      const errorData = await forecastResponse.json().catch(() => ({}));
+      throw new Error(
+        `Hourly API Error: ${forecastResponse.status} - ${errorData.error || forecastResponse.statusText}`
+      );
     }
     const forecastData = await forecastResponse.json();
     hourlyForecastContainer.innerHTML = '';
@@ -343,11 +354,15 @@ async function fetchWeather(lat, lng) {
   if (animationContainer) animationContainer.innerHTML = '';
   if (descContainer) descContainer.innerHTML = '<p>Loading weather...</p>';
   try {
-    // Use window.apiKeys
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${window.apiKeys.openWeatherKey}&units=metric`;
-    const weatherResponse = await fetch(weatherUrl);
+    // Call Vercel function for current weather
+    const weatherResponse = await fetch(
+      `/api/weather?type=current&lat=${lat}&lon=${lng}`
+    );
     if (!weatherResponse.ok) {
-      throw new Error('Weather API failed');
+      const errorData = await weatherResponse.json().catch(() => ({}));
+      throw new Error(
+        `Weather API Error: ${weatherResponse.status} - ${errorData.error || weatherResponse.statusText}`
+      );
     }
     const weatherData = await weatherResponse.json();
     const weatherDescription =
@@ -406,12 +421,15 @@ async function fetchSuggestions() {
   suggestionList.innerHTML = '';
   if (!input) return;
   try {
-    // Use window.apiKeys
+    // Call Vercel function for geocoding suggestions
     const locationResponse = await fetch(
-      `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(input)}&key=${window.apiKeys.openCageKey}&limit=5`
+      `/api/geocode?query=${encodeURIComponent(input)}`
     );
     if (!locationResponse.ok) {
-      throw new Error(`OpenCage API error: ${locationResponse.status}`);
+      const errorData = await locationResponse.json().catch(() => ({}));
+      throw new Error(
+        `Suggestion API Error: ${locationResponse.status} - ${errorData.error || locationResponse.statusText}`
+      );
     }
     const locationData = await locationResponse.json();
     const results = locationData.results;
@@ -469,10 +487,12 @@ function updateCurrentTime(timezone) {
         second: '2-digit',
         hour12: true,
       };
+      // Validate timezone before formatting
+      Intl.DateTimeFormat(undefined, { timeZone: timezone });
       const formatter = new Intl.DateTimeFormat('en-US', options);
       currentTimeElement.textContent = formatter.format(now);
     } catch (error) {
-      console.error('Error updating time:', error);
+      console.error('Error updating time (Invalid Timezone?):', error);
       currentTimeElement.textContent = 'Invalid Timezone';
       if (currentTimeElement.intervalId) {
         clearInterval(currentTimeElement.intervalId);
@@ -489,11 +509,15 @@ async function fetchForecast(lat, lng) {
   if (!forecastContainer) return;
   forecastContainer.innerHTML = '<p>Loading forecast...</p>';
   try {
-    // Use window.apiKeys
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lng}&appid=${window.apiKeys.openWeatherKey}&units=metric`;
-    const forecastResponse = await fetch(forecastUrl);
+    // Call Vercel function for daily forecast
+    const forecastResponse = await fetch(
+      `/api/weather?type=forecast&lat=${lat}&lon=${lng}`
+    );
     if (!forecastResponse.ok) {
-      throw new Error('Forecast API failed');
+      const errorData = await forecastResponse.json().catch(() => ({}));
+      throw new Error(
+        `Forecast API Error: ${forecastResponse.status} - ${errorData.error || forecastResponse.statusText}`
+      );
     }
     const forecastData = await forecastResponse.json();
     forecastContainer.innerHTML = '';
@@ -532,13 +556,19 @@ async function fetchAirQuality(lat, lng) {
   if (!airQualityElement) return;
   airQualityElement.textContent = 'Loading...';
   try {
-    // Use window.apiKeys
-    const airQualityUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lng}&appid=${window.apiKeys.openWeatherKey}`;
-    const response = await fetch(airQualityUrl);
+    // Call Vercel function for AQI
+    const response = await fetch(`/api/weather?type=aqi&lat=${lat}&lon=${lng}`);
     if (!response.ok) {
-      throw new Error('Failed to fetch Air Quality Index');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        `AQI API Error: ${response.status} - ${errorData.error || response.statusText}`
+      );
     }
     const airQualityData = await response.json();
+    // Check if list exists and has data
+    if (!airQualityData.list || airQualityData.list.length === 0) {
+        throw new Error('AQI data format unexpected');
+    }
     const aqi = airQualityData.list[0].main.aqi;
     const aqiDescriptions = [
       'Good (1)',
@@ -598,7 +628,6 @@ if (currentTheme === 'dark') {
   updateThemeButton(false);
 }
 
-// Ensure button exists before adding listener
 if (themeToggleBtn) {
   themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
@@ -612,7 +641,6 @@ if (themeToggleBtn) {
 } else {
   console.warn('Theme toggle button not found.');
 }
-
 
 function updateThemeButton(isDarkMode) {
   if (themeToggleBtn) {
