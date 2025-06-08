@@ -471,6 +471,8 @@ body.dark-mode #map .leaflet-tile-container img {
 .info-item .value {
   margin-left: auto;
   color: var(--text-secondary);
+  text-align: right; /* Align value to the right */
+  word-break: break-word; /* Allow long values to wrap */
 }
 
 /* Forecast cards */
@@ -511,13 +513,9 @@ body.dark-mode #map .leaflet-tile-container img {
   color: var(--text-color);
 }
 
-/* --- NEW AND IMPROVED HOURLY CARD STYLES --- */
 .hourly-card {
-  /* 1. Set a fixed width and prevent shrinking/growing */
   flex-basis: 110px;
   width: 110px;
-
-  /* Use flexbox internally to align content nicely */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -525,10 +523,9 @@ body.dark-mode #map .leaflet-tile-container img {
 }
 
 .hourly-card img {
-  /* 2. Enforce a consistent icon size */
   width: 48px;
   height: 48px;
-  object-fit: contain; /* Ensures icon scales properly within the box */
+  object-fit: contain;
   margin: 8px 0;
 }
 
@@ -547,17 +544,10 @@ body.dark-mode #map .leaflet-tile-container img {
   font-size: 0.85rem;
   color: var(--text-secondary);
   text-transform: capitalize;
-
-  /* 3. Handle long text with truncation */
-  width: 100%; /* Ensure it uses the full card width for calculation */
-  white-space: nowrap; /* Prevent text from wrapping to a new line */
-  overflow: hidden; /* Hide the overflowing part */
-  text-overflow: ellipsis; /* Add the "..." */
-}
-/* --- END OF HOURLY CARD STYLES --- */
-
-.forecast-card-item {
-    min-width: 130px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .forecast-card-item {
@@ -586,6 +576,7 @@ body.dark-mode #map .leaflet-tile-container img {
   color: var(--text-secondary);
   text-transform: capitalize;
 }
+
 
 /* Favorites card */
 .favorites-card {
@@ -672,7 +663,7 @@ footer {
   }
 }
 
-/* Tablet portrait */
+/* Tablet portrait and large phones */
 @media (max-width: 768px) {
   .container {
     padding: 15px;
@@ -680,10 +671,6 @@ footer {
 
   header h1 {
     font-size: 1.8rem;
-  }
-
-  #results-grid {
-    grid-template-columns: 1fr 1fr;
   }
 
   .card {
@@ -695,16 +682,26 @@ footer {
       margin-top: 15px;
       display: inline-flex;
   }
+
+  /* --- IMPROVED MOBILE GRID --- */
+  #results-grid {
+    grid-template-columns: 1fr; /* Force single column */
+  }
+
+  .info-item .value {
+    margin-left: 0; /* Remove auto margin */
+    flex-grow: 1; /* Allow value to take remaining space */
+  }
 }
 
 /* Mobile phone */
 @media (max-width: 480px) {
   .container {
-    padding: 10px; /* Reduce padding further */
+    padding: 10px;
   }
 
   header h1 {
-    font-size: 1.6rem; /* Smaller header */
+    font-size: 1.6rem;
   }
   header p {
     font-size: 0.9rem;
@@ -712,29 +709,25 @@ footer {
 
   /* --- Mobile Search Bar --- */
   .search-bar {
-    gap: 15px; /* Increase gap for vertical stacking */
+    gap: 15px;
   }
   .search-bar input,
   .search-bar .clear-btn {
-    flex-basis: 100%; /* Make input and button full width */
+    flex-basis: 100%;
     max-width: 100%;
   }
   .search-bar .toggle-switch-update {
     width: 100%;
     justify-content: center;
-    margin-top: 0; /* Remove top margin */
+    margin-top: 0;
   }
   #suggestionList {
-    top: 105px; /* Adjust position for stacked layout */
+    top: 105px;
   }
   /* --- End Mobile Search Bar --- */
 
-  #results-grid {
-    grid-template-columns: 1fr; /* Stack info items */
-  }
-
   #favorites-list {
-    grid-template-columns: 1fr; /* Stack favorites */
+    grid-template-columns: 1fr;
   }
 
   .card-header {
@@ -744,6 +737,6 @@ footer {
   }
 
   .info-item {
-    padding: 10px; /* Tighter padding */
+    padding: 10px;
   }
 }
