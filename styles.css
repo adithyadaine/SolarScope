@@ -20,7 +20,8 @@
   --header-text: #222;
   --header-subtext: #555;
   --toggle-slider-bg: #ccc;
-  --map-filter: none;
+  --transition: 0.3s ease;
+  --border-radius: 8px;
 }
 
 body.dark-mode {
@@ -41,7 +42,6 @@ body.dark-mode {
   --header-text: #e0e0e0;
   --header-subtext: #a0a0a0;
   --toggle-slider-bg: #555;
-  /* --map-filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9); */
 }
 
 /* Reset and base styles */
@@ -52,7 +52,7 @@ body.dark-mode {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
   line-height: 1.6;
@@ -339,8 +339,8 @@ body.dark-mode .card:hover {
 }
 
 .weather-description-container p {
-    color: var(--text-color);
-    margin-top: 10px;
+  color: var(--text-color);
+  margin-top: 10px;
 }
 
 /* Map card */
@@ -405,8 +405,9 @@ body.dark-mode .card:hover {
   width: 100%;
 }
 
+/* --- UPDATED: Enhanced dark mode map filter --- */
 body.dark-mode #map .leaflet-tile-container img {
-    filter: var(--map-filter);
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
 }
 
 #map-overlay {
@@ -430,8 +431,8 @@ body.dark-mode #map .leaflet-tile-container img {
 }
 
 .leaflet-control-container {
-   position: relative;
-   z-index: 1001 !important;
+  position: relative;
+  z-index: 1001 !important;
 }
 
 /* Info card with Today's Information */
@@ -475,12 +476,14 @@ body.dark-mode #map .leaflet-tile-container img {
   word-break: break-word; /* Allow long values to wrap */
 }
 
-/* Forecast cards */
+/* --- UPDATED AND REFACTORED: Forecast Card Sections --- */
+
 .forecast-card {
   flex: 1 1 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* CRUCIAL: This prevents the card itself from expanding */
+  /* Crucial: Prevents the card from expanding with its scrolling content */
+  overflow: hidden;
 }
 
 .forecast-card h2 {
@@ -489,13 +492,16 @@ body.dark-mode #map .leaflet-tile-container img {
 
 .forecast-container {
   display: flex;
-  overflow-x: auto; /* This is correct, keep it */
+  overflow-x: auto;
   gap: 15px;
-  padding: 5px 0 10px 0;
+  /* Add padding to create a clean "end" on the right */
+  padding: 5px 15px 10px 5px;
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   flex-grow: 1;
-  min-height: 0; /* Fix for flexbox overflow issues */
+  min-height: 0;
+  /* This clips any content that tries to render outside the padded area */
+  clip-path: inset(0 0 0 0);
 }
 
 .forecast-container::-webkit-scrollbar {
@@ -512,7 +518,8 @@ body.dark-mode #map .leaflet-tile-container img {
   border-radius: 10px;
 }
 
-.hourly-card, .forecast-card-item {
+.hourly-card,
+.forecast-card-item {
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
@@ -520,15 +527,15 @@ body.dark-mode #map .leaflet-tile-container img {
   text-align: center;
   flex: 0 0 auto;
   color: var(--text-color);
+  /* Ensure cards are flex containers to manage internal alignment */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Align content to the top */
 }
 
 .hourly-card {
   flex-basis: 110px;
   width: 110px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .hourly-card img {
@@ -549,18 +556,8 @@ body.dark-mode #map .leaflet-tile-container img {
   margin: 5px 0;
 }
 
-.hourly-card .desc {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  text-transform: capitalize;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .forecast-card-item {
-    min-width: 130px;
+  min-width: 130px;
 }
 
 .forecast-card-item img {
@@ -580,12 +577,27 @@ body.dark-mode #map .leaflet-tile-container img {
   margin: 5px 0;
 }
 
+/* Target both hourly and daily forecast descriptions for text wrapping */
+.hourly-card .desc,
 .forecast-card-item .desc {
   font-size: 0.85rem;
   color: var(--text-secondary);
   text-transform: capitalize;
+  /* Allow text to wrap naturally */
+  white-space: normal;
+  word-break: break-word;
+  /* Remove properties that were cutting off text */
+  overflow: visible;
+  text-overflow: clip;
+  /* Give the description area space to grow */
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px; /* Add some space above the description */
 }
 
+/* --- END OF UPDATED SECTION --- */
 
 /* Favorites card */
 .favorites-card {
@@ -687,9 +699,9 @@ footer {
   }
 
   .theme-btn {
-      position: static;
-      margin-top: 15px;
-      display: inline-flex;
+    position: static;
+    margin-top: 15px;
+    display: inline-flex;
   }
 
   /* --- IMPROVED MOBILE GRID --- */
