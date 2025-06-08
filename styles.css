@@ -508,36 +508,84 @@ body.dark-mode #map .leaflet-tile-container img {
   padding: 15px;
   text-align: center;
   flex: 0 0 auto;
-  min-width: 100px;
   color: var(--text-color);
 }
-.forecast-card-item {
-    min-width: 130px;
+
+/* --- NEW AND IMPROVED HOURLY CARD STYLES --- */
+.hourly-card {
+  /* 1. Set a fixed width and prevent shrinking/growing */
+  flex-basis: 110px;
+  width: 110px;
+
+  /* Use flexbox internally to align content nicely */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.hourly-card img, .forecast-card-item img {
-  width: 40px;
-  height: 40px;
-  margin: 8px auto;
+.hourly-card img {
+  /* 2. Enforce a consistent icon size */
+  width: 48px;
+  height: 48px;
+  object-fit: contain; /* Ensures icon scales properly within the box */
+  margin: 8px 0;
 }
 
-.hourly-card .time, .forecast-card-item .date {
+.hourly-card .time {
   font-weight: 500;
   font-size: 0.9rem;
 }
 
-.hourly-card .temp, .forecast-card-item .temp {
+.hourly-card .temp {
   font-weight: 600;
   font-size: 1.1rem;
   margin: 5px 0;
 }
 
-.hourly-card .desc, .forecast-card-item .desc {
+.hourly-card .desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+
+  /* 3. Handle long text with truncation */
+  width: 100%; /* Ensure it uses the full card width for calculation */
+  white-space: nowrap; /* Prevent text from wrapping to a new line */
+  overflow: hidden; /* Hide the overflowing part */
+  text-overflow: ellipsis; /* Add the "..." */
+}
+/* --- END OF HOURLY CARD STYLES --- */
+
+.forecast-card-item {
+    min-width: 130px;
+}
+
+.forecast-card-item {
+    min-width: 130px;
+}
+
+.forecast-card-item img {
+  width: 40px;
+  height: 40px;
+  margin: 8px auto;
+}
+
+.forecast-card-item .date {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.forecast-card-item .temp {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 5px 0;
+}
+
+.forecast-card-item .desc {
   font-size: 0.85rem;
   color: var(--text-secondary);
   text-transform: capitalize;
 }
-
 
 /* Favorites card */
 .favorites-card {
