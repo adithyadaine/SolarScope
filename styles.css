@@ -20,7 +20,7 @@
   --header-text: #222;
   --header-subtext: #555;
   --toggle-slider-bg: #ccc;
-  --map-filter: none; /* No filter for light mode */
+  --map-filter: none;
 }
 
 body.dark-mode {
@@ -41,8 +41,6 @@ body.dark-mode {
   --header-text: #e0e0e0;
   --header-subtext: #a0a0a0;
   --toggle-slider-bg: #555;
-  /* Optional: Invert map colors for better dark mode integration */
-  /* Be cautious, this affects map readability */
   /* --map-filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9); */
 }
 
@@ -73,7 +71,7 @@ body {
 header {
   text-align: center;
   padding: 20px 0 30px 0;
-  position: relative; /* For theme toggle positioning */
+  position: relative;
 }
 
 header img {
@@ -94,16 +92,16 @@ header p {
   color: var(--header-subtext);
 }
 
-/* Theme Toggle Button - Pill Shape */
+/* Theme Toggle Button */
 .theme-btn {
   position: absolute;
-  top: 25px; /* Adjust vertical position */
-  right: 25px; /* Adjust horizontal position */
-  padding: 8px 16px; /* Adjust padding */
+  top: 25px;
+  right: 25px;
+  padding: 8px 16px;
   background-color: var(--card-bg);
   color: var(--text-color);
   border: 1px solid var(--border-color);
-  border-radius: 50px; /* Make it pill-shaped */
+  border-radius: 50px;
   cursor: pointer;
   font-weight: 500;
   font-size: 0.9rem;
@@ -111,19 +109,13 @@ header p {
   box-shadow: var(--shadow);
   align-items: center;
   justify-content: center;
-  line-height: 1; /* Ensure icon vertical alignment */
+  line-height: 1;
 }
-
 
 .theme-btn:hover {
   background-color: var(--bg-color);
   border-color: var(--primary-color);
 }
-
-.theme-btn i {
-  font-size: 1rem;
-}
-
 
 /* Search bar */
 .search-bar {
@@ -176,7 +168,7 @@ header p {
 
 #suggestionList {
   position: absolute;
-  top: 50px; /* Adjust if needed */
+  top: 50px;
   left: 0;
   right: 0;
   max-width: 600px;
@@ -185,7 +177,7 @@ header p {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
-  z-index: 1000; /* Suggestion list z-index */
+  z-index: 1000;
   list-style: none;
   padding: 0;
 }
@@ -198,7 +190,7 @@ header p {
   align-items: center;
   cursor: pointer;
   transition: var(--transition);
-  color: var(--text-color); /* Use variable */
+  color: var(--text-color);
 }
 
 #suggestionList li:last-child {
@@ -209,12 +201,19 @@ header p {
   background-color: var(--suggestion-hover-bg);
 }
 
+.weather-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9em;
+}
+
 .toggle-switch-update {
   display: flex;
   align-items: center;
   margin-top: 12px;
   user-select: none;
-  color: var(--text-color); /* Use variable */
+  color: var(--text-color);
 }
 
 .toggle-switch-update .slider {
@@ -226,7 +225,6 @@ header p {
   border-radius: 34px;
   margin-right: 10px;
   cursor: pointer;
-  transition: var(--transition);
 }
 
 .toggle-switch-update .slider:before {
@@ -275,7 +273,7 @@ header p {
   flex: 1;
   min-width: 300px;
   transition: var(--transition);
-  border: 1px solid var(--border-color); /* Add subtle border */
+  border: 1px solid var(--border-color);
 }
 
 .card:hover {
@@ -341,7 +339,7 @@ body.dark-mode .card:hover {
 }
 
 .weather-description-container p {
-    color: var(--text-color); /* Ensure description text uses variable */
+    color: var(--text-color);
     margin-top: 10px;
 }
 
@@ -356,7 +354,7 @@ body.dark-mode .card:hover {
   align-items: center;
   margin-bottom: 15px;
   user-select: none;
-  color: var(--text-color); /* Use variable */
+  color: var(--text-color);
 }
 
 .toggle-switch .slider {
@@ -368,7 +366,6 @@ body.dark-mode .card:hover {
   border-radius: 34px;
   margin-right: 10px;
   cursor: pointer;
-  transition: var(--transition);
 }
 
 .toggle-switch .slider:before {
@@ -396,9 +393,8 @@ body.dark-mode .card:hover {
 }
 
 #map-container {
-  position: relative; /* Add this if not already present */
-  z-index: 1; /* Establish a base stacking context for the map area */
-  /* ... other map-container styles ... */
+  position: relative;
+  z-index: 1;
   height: 300px;
   border-radius: 8px;
   overflow: hidden;
@@ -409,7 +405,6 @@ body.dark-mode .card:hover {
   width: 100%;
 }
 
-/* Apply filter to map tiles in dark mode if enabled */
 body.dark-mode #map .leaflet-tile-container img {
     filter: var(--map-filter);
 }
@@ -434,6 +429,11 @@ body.dark-mode #map .leaflet-tile-container img {
   display: none;
 }
 
+.leaflet-control-container {
+   position: relative;
+   z-index: 1001 !important;
+}
+
 /* Info card with Today's Information */
 .info-card {
   flex: 1 1 100%;
@@ -452,7 +452,7 @@ body.dark-mode #map .leaflet-tile-container img {
   padding: 12px 16px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  color: var(--text-color); /* Use variable */
+  color: var(--text-color);
 }
 
 .info-item i {
@@ -501,16 +501,15 @@ body.dark-mode #map .leaflet-tile-container img {
   border-radius: 10px;
 }
 
-/* Hourly/Daily forecast item styling */
 .hourly-card, .forecast-card-item {
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 15px;
   text-align: center;
-  flex: 0 0 auto; /* Prevent shrinking */
-  min-width: 100px; /* Adjust as needed */
-  color: var(--text-color); /* Use variable */
+  flex: 0 0 auto;
+  min-width: 100px;
+  color: var(--text-color);
 }
 .forecast-card-item {
     min-width: 130px;
@@ -560,7 +559,7 @@ body.dark-mode #map .leaflet-tile-container img {
   padding: 12px 16px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  color: var(--text-color); /* Use variable */
+  color: var(--text-color);
 }
 
 #favorites-list img {
@@ -608,7 +607,9 @@ footer {
   font-size: 0.9rem;
 }
 
-/* Responsive adjustments */
+/* --- RESPONSIVE ADJUSTMENTS --- */
+
+/* Tablet and smaller desktop */
 @media (max-width: 992px) {
   .dashboard-row {
     flex-direction: column;
@@ -623,6 +624,7 @@ footer {
   }
 }
 
+/* Tablet portrait */
 @media (max-width: 768px) {
   .container {
     padding: 15px;
@@ -641,43 +643,59 @@ footer {
   }
 
   .theme-btn {
-      position: static; /* Let button flow normally */
+      position: static;
       margin-top: 15px;
       display: inline-flex;
   }
 }
 
+/* Mobile phone */
 @media (max-width: 480px) {
+  .container {
+    padding: 10px; /* Reduce padding further */
+  }
+
+  header h1 {
+    font-size: 1.6rem; /* Smaller header */
+  }
+  header p {
+    font-size: 0.9rem;
+  }
+
+  /* --- Mobile Search Bar --- */
+  .search-bar {
+    gap: 15px; /* Increase gap for vertical stacking */
+  }
+  .search-bar input,
+  .search-bar .clear-btn {
+    flex-basis: 100%; /* Make input and button full width */
+    max-width: 100%;
+  }
+  .search-bar .toggle-switch-update {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0; /* Remove top margin */
+  }
+  #suggestionList {
+    top: 105px; /* Adjust position for stacked layout */
+  }
+  /* --- End Mobile Search Bar --- */
+
   #results-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Stack info items */
   }
 
   #favorites-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Stack favorites */
   }
-
-  .search-bar input {
-    width: 100%;
-    flex-basis: 100%; /* Ensure input takes full width */
-  }
-  .search-bar .clear-btn {
-      width: 100%; /* Make clear button full width */
-  }
-  .search-bar .toggle-switch-update {
-      width: 100%; /* Make toggle full width */
-      justify-content: center;
-      margin-top: 15px;
-  }
-
 
   .card-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-}
 
-.leaflet-control-container {
-  position: relative; /* Ensure positioning context for z-index */
-  z-index: 1001 !important; /* Higher than suggestionList - Use !important temporarily for testing */
+  .info-item {
+    padding: 10px; /* Tighter padding */
+  }
 }
