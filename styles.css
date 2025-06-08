@@ -478,15 +478,24 @@ body.dark-mode #map .leaflet-tile-container img {
 /* Forecast cards */
 .forecast-card {
   flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* CRUCIAL: This prevents the card itself from expanding */
+}
+
+.forecast-card h2 {
+  flex-shrink: 0;
 }
 
 .forecast-container {
   display: flex;
-  overflow-x: auto;
+  overflow-x: auto; /* This is correct, keep it */
   gap: 15px;
   padding: 5px 0 10px 0;
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  flex-grow: 1;
+  min-height: 0; /* Fix for flexbox overflow issues */
 }
 
 .forecast-container::-webkit-scrollbar {
