@@ -405,7 +405,6 @@ body.dark-mode .card:hover {
   width: 100%;
 }
 
-/* --- FINAL: Enhanced dark mode map filter --- */
 body.dark-mode #map .leaflet-tile-container img {
   filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
 }
@@ -478,12 +477,10 @@ body.dark-mode #map .leaflet-tile-container img {
 
 /* --- FINAL: Forecast Card Layout Enhancements --- */
 
-/* This targets the parent card for both forecast sections */
 .forecast-card {
   flex: 1 1 100%;
   display: flex;
   flex-direction: column;
-  /* This makes the card a fixed frame, hiding overflow */
   overflow: hidden;
 }
 
@@ -491,19 +488,15 @@ body.dark-mode #map .leaflet-tile-container img {
   flex-shrink: 0;
 }
 
-/* This targets the inner containers (#hourly-forecast and #forecast) */
 .forecast-container {
   display: flex;
-  /* This makes the container scroll horizontally */
   overflow-x: auto;
   gap: 15px;
-  /* Padding creates a clean edge on the right */
   padding: 5px 15px 10px 5px;
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   flex-grow: 1;
   min-height: 0;
-  /* This clips content cleanly at the container's edge */
   clip-path: inset(0 0 0 0);
 }
 
@@ -579,19 +572,15 @@ body.dark-mode #map .leaflet-tile-container img {
   margin: 5px 0;
 }
 
-/* This targets descriptions in both sections for text wrapping */
 .hourly-card .desc,
 .forecast-card-item .desc {
   font-size: 0.85rem;
   color: var(--text-secondary);
   text-transform: capitalize;
-  /* Allows text to wrap */
   white-space: normal;
   word-break: break-word;
-  /* Removes rules that cut off text */
   overflow: visible;
   text-overflow: clip;
-  /* Allows this element to grow to fill space */
   flex-grow: 1;
   display: flex;
   align-items: center;
