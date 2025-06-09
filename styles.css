@@ -482,6 +482,8 @@ body.dark-mode #map .leaflet-tile-container img {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  max-width: 100%; /* Ensure card doesn't exceed container width */
+  box-sizing: border-box; /* Ensure padding/borders are included in width */
 }
 
 .forecast-card h2 {
@@ -490,15 +492,16 @@ body.dark-mode #map .leaflet-tile-container img {
 
 .forecast-container {
   display: flex;
-  overflow-x: auto;
+  overflow-x: auto; /* Only this container scrolls horizontally */
+  overflow-y: hidden; /* Prevent vertical scrolling */
   gap: 15px;
   padding: 5px 15px 10px 5px;
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   flex-grow: 1;
-  /* THE CRITICAL FIX: This prevents the flex item from expanding to fit
-     its content, allowing the overflow and scrollbar to work on mobile. */
   min-width: 0;
+  max-width: 100%; /* Ensure it doesn't exceed parent width */
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .forecast-container::-webkit-scrollbar {
@@ -522,11 +525,13 @@ body.dark-mode #map .leaflet-tile-container img {
   border-radius: var(--border-radius);
   padding: 15px;
   text-align: center;
-  flex: 0 0 auto;
+  flex: 0 0 auto; /* Prevent stretching */
   color: var(--text-color);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  min-width: 110px; /* Ensure consistent card width */
+  max-width: 130px; /* Cap width to prevent overflow */
 }
 
 .hourly-card {
@@ -553,7 +558,8 @@ body.dark-mode #map .leaflet-tile-container img {
 }
 
 .forecast-card-item {
-  min-width: 130px;
+  min-width: 110px; /* Adjusted to match hourly-card for consistency */
+  max-width: 130px;
 }
 
 .forecast-card-item img {
@@ -702,6 +708,23 @@ footer {
     margin-left: 0;
     flex-grow: 1;
   }
+
+  .forecast-card {
+    max-width: 100%;
+    overflow: hidden; /* Reinforce no overflow on card */
+  }
+
+  .forecast-container {
+    max-width: 100%;
+    overflow-x: auto; /* Ensure horizontal scrolling */
+    overflow-y: hidden; /* Prevent vertical scrolling */
+  }
+
+  .hourly-card,
+  .forecast-card-item {
+    min-width: 100px; /* Slightly smaller for mobile */
+    max-width: 120px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -745,5 +768,15 @@ footer {
 
   .info-item {
     padding: 10px;
+  }
+
+  .forecast-container {
+    padding: 5px 10px 10px 5px; /* Reduce padding for smaller screens */
+  }
+
+  .hourly-card,
+  .forecast-card-item {
+    min-width: 90px; /* Further reduce for very small screens */
+    max-width: 110px;
   }
 }
