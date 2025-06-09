@@ -496,8 +496,9 @@ body.dark-mode #map .leaflet-tile-container img {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   flex-grow: 1;
-  min-height: 0;
-  clip-path: inset(0 0 0 0);
+  /* THE CRITICAL FIX: This prevents the flex item from expanding to fit
+     its content, allowing the overflow and scrollbar to work on mobile. */
+  min-width: 0;
 }
 
 .forecast-container::-webkit-scrollbar {
