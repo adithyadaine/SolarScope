@@ -475,7 +475,7 @@ body.dark-mode #map .leaflet-tile-container img {
   word-break: break-word;
 }
 
-/* --- FINAL: Forecast Card Layout Enhancements --- */
+/* --- Forecast Card Layout Enhancements --- */
 
 .forecast-card {
   flex: 1 1 100%;
@@ -496,8 +496,6 @@ body.dark-mode #map .leaflet-tile-container img {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   flex-grow: 1;
-  /* THE CRITICAL FIX: This prevents the flex item from expanding to fit
-     its content, allowing the overflow and scrollbar to work on mobile. */
   min-width: 0;
 }
 
@@ -745,5 +743,59 @@ footer {
 
   .info-item {
     padding: 10px;
+  }
+
+  /* Enhance forecast container behavior on mobile */
+  .forecast-container {
+    padding: 5px 10px;
+    gap: 10px;
+    min-height: 120px;
+  }
+
+  .hourly-card,
+  .forecast-card-item {
+    flex-basis: 90px;
+    width: 90px;
+    padding: 10px;
+  }
+
+  .hourly-card img,
+  .forecast-card-item img {
+    width: 40px;
+    height: 40px;
+    margin: 4px 0;
+  }
+
+  .hourly-card .time,
+  .forecast-card-item .date {
+    font-size: 0.8rem;
+  }
+
+  .hourly-card .temp,
+  .forecast-card-item .temp {
+    font-size: 1rem;
+    margin: 4px 0;
+  }
+
+  .hourly-card .desc,
+  .forecast-card-item .desc {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    line-height: 1.2;
+    max-height: 2.4em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* Ensure scrollbar is visible and usable */
+  .forecast-container::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .forecast-container::-webkit-scrollbar-thumb {
+    border-radius: 5px;
   }
 }
