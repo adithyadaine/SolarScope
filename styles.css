@@ -502,6 +502,7 @@ body.dark-mode #map .leaflet-tile-container img {
   min-width: 0;
   max-width: 100%; /* Ensure it doesn't exceed parent width */
   box-sizing: border-box; /* Include padding in width calculation */
+  scroll-snap-type: x mandatory;
 }
 
 .forecast-container::-webkit-scrollbar {
@@ -532,6 +533,7 @@ body.dark-mode #map .leaflet-tile-container img {
   justify-content: flex-start;
   min-width: 110px; /* Ensure consistent card width */
   max-width: 130px; /* Cap width to prevent overflow */
+  scroll-snap-align: start;
 }
 
 .hourly-card {
