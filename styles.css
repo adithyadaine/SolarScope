@@ -539,24 +539,37 @@ body.dark-mode #map .leaflet-tile-container img {
 .hourly-card {
   flex-basis: 110px;
   width: 110px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 15px;
+  text-align: center;
+  flex: 0 0 auto;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
 }
 
 .hourly-card img {
   width: 48px;
   height: 48px;
   object-fit: contain;
-  margin: 8px 0;
+  /* Remove margin and let flexbox handle spacing */
+  margin: auto;
 }
 
 .hourly-card .time {
   font-weight: 500;
   font-size: 0.9rem;
+  margin: 4px 0; /* Add small margin for spacing */
 }
 
 .hourly-card .temp {
   font-weight: 600;
   font-size: 1.1rem;
-  margin: 5px 0;
+  margin: 4px 0; /* Add small margin for spacing */
 }
 
 .forecast-card-item {
@@ -594,7 +607,7 @@ body.dark-mode #map .leaflet-tile-container img {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 /* --- END OF FINAL SECTION --- */
