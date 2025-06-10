@@ -373,15 +373,15 @@ async function fetchWeather(lat, lng) {
     }
     const weatherData = await weatherResponse.json();
 
-    // --- SUGGESTION START ---
-    // Dynamically update the header icon based on day/night
+    // // --- SUGGESTION START ---
+    // // Dynamically update the header icon based on day/night
     // if (headerIcon && weatherData.weather && weatherData.weather[0]) {
     //   const iconCode = weatherData.weather[0].icon;
     //   const isNight = iconCode.slice(-1) === "n";
     //   headerIcon.src = isNight ? "./images/moon.png" : "./images/sun.png";
     //   headerIcon.alt = isNight ? "Moon icon" : "Sun icon";
     // }
-    // --- SUGGESTION END ---
+    // // --- SUGGESTION END ---
 
     const weatherDescription =
       weatherData.weather[0]?.description || 'No description available';
