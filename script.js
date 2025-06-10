@@ -120,6 +120,13 @@ function clearInput() {
   const forecastContainer = document.getElementById('forecast');
   if (forecastContainer) forecastContainer.innerHTML = '';
 
+  // Reset the header icon to default
+  const headerIcon = document.getElementById("sunImage");
+  if (headerIcon) {
+    headerIcon.src = "./images/sun.png";
+    headerIcon.alt = "Sun icon";
+  }
+
   map.setView([51.505, -0.09], 2);
   if (marker) {
     map.removeLayer(marker);
@@ -365,6 +372,17 @@ async function fetchWeather(lat, lng) {
       );
     }
     const weatherData = await weatherResponse.json();
+
+    // --- SUGGESTION START ---
+    // Dynamically update the header icon based on day/night
+    if (headerIcon && weatherData.weather && weatherData.weather[0]) {
+      const iconCode = weatherData.weather[0].icon;
+      const isNight = iconCode.slice(-1) === "n";
+      headerIcon.src = isNight ? "./images/moon.png" : "./images/sun.png";
+      headerIcon.alt = isNight ? "Moon icon" : "Sun icon";
+    }
+    // --- SUGGESTION END ---
+
     const weatherDescription =
       weatherData.weather[0]?.description || 'No description available';
     const currentTemp = Math.round(weatherData.main.temp);
