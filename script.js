@@ -256,7 +256,22 @@ function loadFavorites() {
     const viewButton = document.createElement('button');
     viewButton.textContent = 'View';
     viewButton.classList.add('view-favorite');
-    viewButton.onclick = () => fetchDataByCoordinates(favorite.lat, favorite.lng);
+    // viewButton.onclick = () => fetchDataByCoordinates(favorite.lat, favorite.lng);
+    // AFTER
+    viewButton.onclick = () => {
+      // 1. Set the map's view to the favorite's coordinates
+      map.setView([favorite.lat, favorite.lng], 10);
+
+      // 2. Move the existing marker or create a new one
+      if (marker) {
+        marker.setLatLng([favorite.lat, favorite.lng]);
+      } else {
+        marker = L.marker([favorite.lat, favorite.lng]).addTo(map);
+      }
+
+      // 3. Now, fetch all the data for the new location
+      fetchDataByCoordinates(favorite.lat, favorite.lng);
+    };
     const removeButton = document.createElement('button');
     removeButton.textContent = 'Remove';
     removeButton.classList.add('remove-favorite');
