@@ -1,4 +1,4 @@
-# Sunrise & Sunset Tracker ☀️🌙
+# SolarScope - A Sunrise & Sunset Tracker ☀️🌙
 
 A web application to display sunrise, sunset times, current weather conditions, and forecasts for any location worldwide. Users can search for locations, select points on an interactive map, save favorite locations, and toggle between light and dark themes.
 
