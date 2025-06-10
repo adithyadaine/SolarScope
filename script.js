@@ -375,12 +375,12 @@ async function fetchWeather(lat, lng) {
 
     // --- SUGGESTION START ---
     // Dynamically update the header icon based on day/night
-    if (headerIcon && weatherData.weather && weatherData.weather[0]) {
-      const iconCode = weatherData.weather[0].icon;
-      const isNight = iconCode.slice(-1) === "n";
-      headerIcon.src = isNight ? "./images/moon.png" : "./images/sun.png";
-      headerIcon.alt = isNight ? "Moon icon" : "Sun icon";
-    }
+    // if (headerIcon && weatherData.weather && weatherData.weather[0]) {
+    //   const iconCode = weatherData.weather[0].icon;
+    //   const isNight = iconCode.slice(-1) === "n";
+    //   headerIcon.src = isNight ? "./images/moon.png" : "./images/sun.png";
+    //   headerIcon.alt = isNight ? "Moon icon" : "Sun icon";
+    // }
     // --- SUGGESTION END ---
 
     const weatherDescription =
