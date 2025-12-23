@@ -51,9 +51,13 @@ To run this project locally, follow these steps:
     *   Open `apikeys.js` and replace the placeholder strings (`"YOUR_..._KEY_HERE"`) with your actual API keys obtained from the services above.
     *   **Important:** The `apikeys.js` file is listed in `.gitignore` and should **never** be committed to version control.
 
-3.  **Open the Application:**
-    *   Simply open the `index.html` file in your web browser.
-    *   **Note:** For full functionality (especially API requests), it's recommended to serve the files using a simple local web server to avoid potential CORS issues when running directly from `file:///`. Tools like the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension for VS Code or Python's built-in server (`python -m http.server` in the project directory) can be used.
+3.  **Run with Backend API Support:**
+    *   This project uses serverless functions (in the `/api` directory) which **cannot** be served by standard static file servers (like VS Code "Live Server" or `python -m http.server`).
+    *   Start the development server:
+        ```bash
+        npm start
+        ```
+    *   Open `http://localhost:3000` in your browser.
 
 ## Usage
 
