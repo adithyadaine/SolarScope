@@ -3,123 +3,317 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sunrise and Sunset Tracker</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <title>SolarScope - Sunrise, Sunset & Weather</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=5" />
   <link rel="icon" href="./images/sunrise.png" type="image/icon type">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <img src="./images/sun.png" alt="Sun icon" id="sunImage">
-      <h1>SolarScope</h1>
-      <p>Discover sunrise, sunset, and weather details for any location.</p>
-      <button id="theme-toggle" class="theme-btn">
-        <i class="fas fa-moon"></i> Switch to Dark Mode
-      </button>
-    </header>    
-    
-    <div class="search-bar">
-      <input type="text" id="locationInput" placeholder="Enter a location (e.g., city name)" oninput="debounce(fetchSuggestions, 300)">
-      <button onclick="clearInput()" class="clear-btn">Clear</button>
-      <ul id="suggestionList"></ul>
-      <label class="toggle-switch-update">
-        <input type="checkbox" id="autoUpdateToggle" onchange="toggleAutoUpdate()">
-        <span class="slider"></span>
-        <span class="label-text">Auto Update</span>
-      </label>
-    </div>
+  <div class="dashboard">
+    <!-- Compact Header -->
+    <header class="dash-header">
+      <div class="header-brand">
+        <img src="./images/sun.svg" alt="SolarScope" class="brand-logo">
+        <span class="brand-name">SolarScope</span>
+      </div>
+      <div class="header-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="locationInput" placeholder="Search location..." oninput="debounce(fetchSuggestions, 300)">
+        <ul id="suggestionList"></ul>
+      </div>
+      <div class="header-actions">
+        <button onclick="clearInput()" class="action-btn" title="Reset">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+        <button id="theme-toggle" class="action-btn" title="Toggle Theme">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button onclick="openModal('favoritesModal')" class="action-btn" title="Favorites">
+          <i id="header-fav-icon" class="far fa-star"></i>
+        </button>
 
-    <main class="dashboard">
-      <!-- First row -->
-      <div class="dashboard-row">
-        <!-- Weather card -->
-        <div class="card weather-card">
-          <h2>Weather Condition</h2>
-          <div id="weatherAnimation" class="weather-animation"></div>
-          <div class="weather-description-container"></div>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Grid -->
+    <main class="dash-main">
+      <!-- Left Column: Hero Weather -->
+      <section class="hero-card" id="weather-section">
+        <div class="hero-location">
+          <i class="fas fa-map-marker-alt"></i>
+          <span id="place">Search for a location</span>
+          <button id="add-favorite" class="fav-btn" title="Add to favorites">
+            <i class="far fa-star"></i>
+          </button>
         </div>
-        
-        <!-- Map card -->
-        <div class="card map-card">
-          <h2>Select Location on Map</h2>
-          <label class="toggle-switch">
+        <div class="hero-weather">
+          <div class="hero-temp-block">
+            <span id="current_temp" class="hero-temp">--</span>
+            <span class="hero-unit">°C</span>
+          </div>
+          <div class="hero-condition">
+            <div id="weatherAnimation" class="weather-animation-hero"></div>
+            <span id="weather_desc" class="condition-text">--</span>
+          </div>
+        </div>
+        <div class="hero-details">
+          <div class="detail-item">
+            <i class="fas fa-temperature-low"></i>
+            <span>Feels like</span>
+            <strong id="feels_like">--</strong>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-wind"></i>
+            <span>Wind</span>
+            <strong id="wind_speed">--</strong>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-tint"></i>
+            <span>Humidity</span>
+            <strong id="humidity">--</strong>
+          </div>
+        </div>
+        <div class="hero-sun">
+          <div class="sun-item sunrise">
+            <i class="fas fa-sun"></i>
+            <div>
+              <span class="sun-label">Sunrise</span>
+              <span id="sunrise" class="sun-time">--:--</span>
+            </div>
+          </div>
+          <div class="sun-progress">
+            <div class="sun-arc">
+              <div class="sun-position" id="sun-position"></div>
+            </div>
+            <span id="day_length" class="day-length">-- hrs</span>
+          </div>
+          <div class="sun-item sunset">
+            <i class="fas fa-moon"></i>
+            <div>
+              <span class="sun-label">Sunset</span>
+              <span id="sunset" class="sun-time">--:--</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Map -->
+      <section class="map-card" id="map-section">
+        <div class="map-header">
+          <span>Location Map</span>
+          <label class="map-toggle">
             <input type="checkbox" id="toggle-map-interaction">
-            <span class="slider"></span>
-            <span class="label-text">Enable Map Interaction</span>
+            <span class="toggle-slider"></span>
           </label>
-          <div id="map-container">
-            <div id="map"></div>
-            <div id="map-overlay">Map Interaction Disabled</div>
+        </div>
+        <div id="map-container">
+          <div id="map"></div>
+          <div id="map-overlay">Click toggle to interact</div>
+        </div>
+      </section>
+
+      <!-- 5-Day Forecast Bar -->
+      <section class="daily-bar">
+        <div class="bar-header">
+          <h3><i class="fas fa-calendar-alt"></i> 5-Day Forecast</h3>
+        </div>
+        <div id="forecast" class="daily-scroll"></div>
+      </section>
+
+      <!-- Stats Panel -->
+      <section class="stats-panel">
+        <div class="stat-card">
+          <i class="fas fa-clock"></i>
+          <div class="stat-info">
+            <span class="stat-value" id="current_time">--</span>
+            <span class="stat-label">Local Time</span>
           </div>
         </div>
-      </div>
-      
-      <!-- Second row -->
-      <div class="dashboard-row">
-        <!-- Today's Information -->
-        <div class="card info-card">
-          <div class="card-header">
-            <h2>Today's Information</h2>
-            <button id="add-favorite" class="action-btn">Add to Favorites</button>
-          </div>
-          <div id="results-grid">
-            <div class="info-item"><i class="fas fa-clock"></i> <span class="label">Current Time:</span> <span id="current_time" class="value">-</span></div>
-            <div class="info-item"><i class="fas fa-map-marker-alt"></i> <span class="label">Location:</span> <span id="place" class="value">-</span></div>
-            <div class="info-item"><i class="fas fa-globe"></i> <span class="label">Timezone:</span> <span id="timezone" class="value">-</span></div>
-            <div class="info-item"><i class="fas fa-sun"></i> <span class="label">Sunrise:</span> <span id="sunrise" class="value">-</span></div>
-            <div class="info-item"><i class="fas fa-moon"></i> <span class="label">Sunset:</span> <span id="sunset" class="value">-</span></div>
-            <div class="info-item"><i class="fas fa-cloud-sun"></i> <span class="label">Dawn:</span> <span id="dawn" class="value">-</span></div>
-            <div class="info-item"><i class="fas fa-cloud-moon"></i> <span class="label">Dusk:</span> <span id="dusk" class="value">-</span></div>
-            <div class="info-item"><i class="fas fa-hourglass-half"></i> <span class="label">Day Length:</span> <span id="day_length" class="value">-</span></div>
-            <div class="info-item"><i class="fas fa-stopwatch"></i> <span class="label">Solar Noon:</span> <span id="solar_noon" class="value">-</span></div>
-            <div class="info-item"><i class="fas fa-thermometer-half"></i> <span class="label">Temperature:</span> <span id="current_temp" class="value">-</span></div>
-            <div class="info-item"><i class="fas fa-temperature-high"></i> <span class="label">Feels Like:</span> <span id="feels_like" class="value">-</span></div>
-            <div class="info-item"><i class="fas fa-wind"></i> <span class="label">Air Quality:</span> <span id="air_quality" class="value">-</span></div>
+        <div class="stat-card">
+          <i class="fas fa-globe"></i>
+          <div class="stat-info">
+            <span class="stat-value" id="timezone">--</span>
+            <span class="stat-label">Timezone</span>
           </div>
         </div>
-      </div>
-      
-      <!-- Third row -->
-      <div class="dashboard-row">
-        <!-- Hourly forecast -->
-        <div class="card forecast-card">
-          <h2>Hourly Forecast</h2>
-          <div id="hourly-forecast" class="forecast-container"></div>
-        </div>
-      </div>
-      
-      <!-- Fourth row -->
-      <div class="dashboard-row">
-        <!-- Weather forecast -->
-        <div class="card forecast-card">
-          <h2>Weather Forecast</h2>
-          <div id="forecast" class="forecast-container"></div>
-        </div>
-      </div>
-      
-      <!-- Fifth row -->
-      <div class="dashboard-row">
-        <!-- Favorites -->
-        <div class="card favorites-card">
-          <div class="card-header">
-            <h2>Your Favorites</h2>
-            <button onclick="clearAllFavorites()" class="action-btn danger">Clear All</button>
+        <div class="stat-card">
+          <i class="fas fa-cloud-sun"></i>
+          <div class="stat-info">
+            <span class="stat-value" id="dawn">--</span>
+            <span class="stat-label">Dawn</span>
           </div>
-          <ul id="favorites-list"></ul>
         </div>
-      </div>
+        <div class="stat-card">
+          <i class="fas fa-cloud-moon"></i>
+          <div class="stat-info">
+            <span class="stat-value" id="dusk">--</span>
+            <span class="stat-label">Dusk</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-stopwatch"></i>
+          <div class="stat-info">
+            <span class="stat-value" id="solar_noon">--</span>
+            <span class="stat-label">Solar Noon</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-lungs"></i>
+          <div class="stat-info">
+            <span class="stat-value" id="air_quality">--</span>
+            <span class="stat-label">Air Quality</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hourly Forecast Strip -->
+      <section class="forecast-strip" id="forecast-section">
+        <div class="strip-header">
+          <h3><i class="fas fa-clock"></i> Hourly</h3>
+        </div>
+        <div id="hourly-forecast" class="hourly-scroll"></div>
+      </section>
+
+      <!-- Favorites Bar -->
+
     </main>
 
-    <footer>
-      <p>Built with ❤️ to track the sun and weather.</p>
+    <!-- Footer -->
+    <footer class="dash-footer">
+      <div class="footer-left">
+        <div class="footer-brand-lockup">
+          <img src="./images/sun.svg" alt="SolarScope" class="footer-logo">
+          <span class="footer-brand-name">SolarScope</span>
+        </div>
+        <span class="footer-divider-vert">|</span>
+        <span class="footer-copyright">© 2025</span>
+      </div>
+      <div class="footer-right">
+        <a href="#" onclick="openModal('statusModal')">Status</a>
+        <span class="footer-divider">•</span>
+        <a href="#" onclick="openModal('aboutModal')">About</a>
+        <span class="footer-divider">•</span>
+        <a href="#" onclick="openModal('privacyModal')">Privacy</a>
+      </div>
     </footer>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
   <script src="script.js"></script>
+
+  <!-- Modals -->
+  <div id="modalOverlay" class="modal-overlay hidden" onclick="closeAllModals(event)">
+    
+    <!-- Favorites Modal -->
+    <div id="favoritesModal" class="modal hidden">
+      <div class="modal-header">
+        <h3>Saved Locations</h3>
+        <button class="close-modal" onclick="closeModal('favoritesModal')">&times;</button>
+      </div>
+      <div class="modal-content">
+        <ul id="favorites-list" class="fav-list-modal"></ul>
+        <div class="modal-actions">
+           <button onclick="event.stopPropagation(); handleClearFavorites(this)" class="btn-danger">Clear All</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Modal -->
+    <div id="statusModal" class="modal hidden">
+      <div class="modal-header">
+        <h3 class="status-title"><i class="fas fa-signal"></i> Status</h3>
+        <button class="close-modal" onclick="closeModal('statusModal')">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p class="status-desc">Real-time status of the data sources and APIs powering SolarScope.</p>
+        
+        <div class="status-list">
+          <!-- Item 1 -->
+          <div class="status-card">
+            <div class="status-icon">
+              <i class="fas fa-cloud-sun"></i>
+            </div>
+            <div class="status-details">
+              <strong>OpenWeatherMap API</strong>
+              <span>Weather Data Source</span>
+            </div>
+            <div class="status-state" id="status-weather-state">
+              <span class="status-dot"></span>
+              <span class="status-text">Operational</span>
+            </div>
+          </div>
+          
+          <!-- Item 2 -->
+          <div class="status-card">
+            <div class="status-icon">
+              <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <div class="status-details">
+              <strong>OpenStreetMap API</strong>
+              <span>Map Tiles & Geocoding</span>
+            </div>
+            <div class="status-state" id="status-map-state">
+              <span class="status-dot"></span>
+              <span class="status-text">Operational</span>
+            </div>
+          </div>
+          
+          <!-- Item 3 -->
+          <div class="status-card">
+            <div class="status-icon">
+              <i class="fas fa-server"></i>
+            </div>
+            <div class="status-details">
+              <strong>SolarScope Backend</strong>
+              <span>Vercel Functions</span>
+            </div>
+            <div class="status-state" id="status-backend-state">
+              <span class="status-dot"></span>
+              <span class="status-text">Operational</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-footer-row">
+           <small class="last-checked" id="status-last-checked"><i class="far fa-clock"></i> Last checked: Just now</small>
+           <button class="btn-close" onclick="closeModal('statusModal')">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal hidden">
+      <div class="modal-header">
+        <h3>About SolarScope</h3>
+        <button class="close-modal" onclick="closeModal('aboutModal')">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p>SolarScope is a comprehensive dashboard for tracking solar cycles, weather conditions, and astronomical data.</p>
+        <p>Built with ❤️ by Adithya Daine.</p>
+        <p>Version 1.2.0</p>
+      </div>
+    </div>
+
+    <!-- Privacy Modal -->
+    <div id="privacyModal" class="modal hidden">
+      <div class="modal-header">
+        <h3>Privacy Policy</h3>
+        <button class="close-modal" onclick="closeModal('privacyModal')">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p>Your privacy is important to us.</p>
+        <ul>
+          <li>We calculate weather data based on your location.</li>
+          <li>Location data is processed locally or via stateless API calls.</li>
+          <li>We do not store your location history on our servers.</li>
+          <li>Favorites are saved locally on your device.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
 </body>
 </html>

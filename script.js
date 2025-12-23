@@ -31,7 +31,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setupMapInteractionToggle();
   loadFavorites();
+  initLocation();
 });
+
+function initLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        // Update map
+        if (map) {
+          map.setView([latitude, longitude], 10);
+          if (marker) {
+            marker.setLatLng([latitude, longitude]);
+          } else {
+            marker = L.marker([latitude, longitude]).addTo(map);
+          }
+        }
+        // Fetch data
+        fetchDataByCoordinates(latitude, longitude);
+      },
+      (error) => {
+        console.warn('Geolocation denied or failed. Using default location.', error);
+        // Fallback: Default to London
+        fetchDataByCoordinates(51.505, -0.09);
+      }
+    );
+  } else {
+    // Fallback: No geolocation support
+    fetchDataByCoordinates(51.505, -0.09);
+  }
+}
 
 function setupMapInteractionToggle() {
   const mapOverlay = document.getElementById('map-overlay');
@@ -167,6 +197,7 @@ async function fetchDataByCoordinates(lat, lng) {
       locationData.results[0]?.annotations.timezone.name || 'N/A';
 
     document.getElementById('place').textContent = location;
+    updateFavoriteUI(location);
     document.getElementById('timezone').textContent = timezone;
 
     // These calls now go to your Vercel API endpoints
@@ -239,48 +270,86 @@ function loadFavorites() {
   const favoritesList = document.getElementById('favorites-list');
   if (!favoritesList) return;
   favoritesList.innerHTML = '';
+  
   if (favorites.length === 0) {
-    favoritesList.innerHTML =
-      '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary);">No favorites saved yet.</p>';
+    // Empty state handled by CSS :empty::before
     return;
   }
+  
   favorites.forEach((favorite) => {
     const listItem = document.createElement('li');
-    const weatherIcon = document.createElement('img');
-    weatherIcon.src = favorite.weatherIcon || './images/sun.png';
-    weatherIcon.alt = 'Weather Icon';
+    
+    // Container
+    const favItem = document.createElement('div');
+    favItem.classList.add('fav-item');
+    
+    // 1. Name
     const locationName = document.createElement('span');
-    locationName.textContent = favorite.name;
-    const buttonContainer = document.createElement('div');
-    buttonContainer.classList.add('button-container');
-    const viewButton = document.createElement('button');
-    viewButton.textContent = 'View';
-    viewButton.classList.add('view-favorite');
-    // viewButton.onclick = () => fetchDataByCoordinates(favorite.lat, favorite.lng);
-    // AFTER
-    viewButton.onclick = () => {
-      // 1. Set the map's view to the favorite's coordinates
-      map.setView([favorite.lat, favorite.lng], 10);
+    locationName.textContent = favorite.name.split(',')[0]; // Just city name
+    locationName.style.fontWeight = '500';
+    
+    // 2. Weather Info (Async Fetch)
+    const weatherInfo = document.createElement('div');
+    weatherInfo.className = 'fav-weather-info';
+    weatherInfo.style.display = 'flex';
+    weatherInfo.style.alignItems = 'center';
+    weatherInfo.style.gap = '8px';
+    weatherInfo.style.marginRight = '12px'; // Spacing from remove btn
+    weatherInfo.style.marginLeft = 'auto';  // Push to right (next to remove)
+    
+    // Initial State (Placeholder or generic)
+    weatherInfo.innerHTML = '<span style="font-size:12px; opacity:0.7">...</span>';
 
-      // 2. Move the existing marker or create a new one
+    // Fetch Weather
+    fetch(`/api/weather?type=current&lat=${favorite.lat}&lon=${favorite.lng}`)
+      .then(res => res.json())
+      .then(data => {
+         if (data.main && data.weather) {
+            const temp = Math.round(data.main.temp);
+            const iconCode = data.weather[0].icon;
+            // Use small icon
+            const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`;
+            
+            weatherInfo.innerHTML = `
+              <img src="${iconUrl}" alt="weather" style="width:24px; height:24px; display:block;">
+              <span style="font-weight:600; font-size:14px;">${temp}°</span>
+            `;
+         } else {
+             weatherInfo.textContent = '';
+         }
+      })
+      .catch((e) => {
+         console.warn('Fav weather fetch failed', e);
+         weatherInfo.textContent = '';
+      });
+
+    // 3. Remove Button
+    const removeBtn = document.createElement('span');
+    removeBtn.classList.add('remove-fav');
+    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+    removeBtn.onclick = (e) => {
+      e.stopPropagation();
+      removeFavorite(favorite.name);
+    };
+    
+    // Click Row to Load
+    favItem.onclick = () => {
+      map.setView([favorite.lat, favorite.lng], 10);
       if (marker) {
         marker.setLatLng([favorite.lat, favorite.lng]);
       } else {
         marker = L.marker([favorite.lat, favorite.lng]).addTo(map);
       }
-
-      // 3. Now, fetch all the data for the new location
       fetchDataByCoordinates(favorite.lat, favorite.lng);
+      closeModal('favoritesModal');
     };
-    const removeButton = document.createElement('button');
-    removeButton.textContent = 'Remove';
-    removeButton.classList.add('remove-favorite');
-    removeButton.onclick = () => removeFavorite(favorite.name);
-    buttonContainer.appendChild(viewButton);
-    buttonContainer.appendChild(removeButton);
-    listItem.appendChild(weatherIcon);
-    listItem.appendChild(locationName);
-    listItem.appendChild(buttonContainer);
+    
+    // Assemble
+    favItem.appendChild(locationName);
+    favItem.appendChild(weatherInfo);
+    favItem.appendChild(removeBtn);
+    
+    listItem.appendChild(favItem);
     favoritesList.appendChild(listItem);
   });
 }
@@ -289,11 +358,13 @@ function removeFavorite(name) {
   favorites = favorites.filter((favorite) => favorite.name !== name);
   saveFavorites();
   loadFavorites();
+  const currentLocation = document.getElementById('place').textContent;
+  updateFavoriteUI(currentLocation);
 }
 
 async function addFavorite(name, lat, lng) {
   if (favorites.some((favorite) => favorite.name === name)) {
-    alert('This location is already in your favorites.');
+    removeFavorite(name);
     return;
   }
   try {
@@ -312,21 +383,46 @@ async function addFavorite(name, lat, lng) {
     favorites.push({ name, lat, lng, weatherIcon });
     saveFavorites();
     loadFavorites();
+    updateFavoriteUI(name);
   } catch (error) {
     console.error('Error fetching weather data for favorite icon:', error);
     // Add favorite with default icon if fetch fails
     favorites.push({ name, lat, lng, weatherIcon: './images/sun.png' });
     saveFavorites();
     loadFavorites();
+    updateFavoriteUI(name);
   }
 }
 
-function clearAllFavorites() {
-  if (confirm('Are you sure you want to clear all favorites?')) {
-    favorites = [];
-    saveFavorites();
-    loadFavorites();
+let clearConfirmTimer;
+
+function handleClearFavorites(btn) {
+  if (btn.classList.contains('confirm-state')) {
+    // Confirmed
+    performClearFavorites();
+    resetClearButton(btn);
+  } else {
+    // First Click
+    btn.classList.add('confirm-state');
+    btn.textContent = 'Confirm Clear?';
+    if (clearConfirmTimer) clearTimeout(clearConfirmTimer);
+    clearConfirmTimer = setTimeout(() => resetClearButton(btn), 4000);
   }
+}
+
+function resetClearButton(btn) {
+  if (!btn) return;
+  btn.classList.remove('confirm-state');
+  btn.textContent = 'Clear All';
+}
+
+function performClearFavorites() {
+  favorites = [];
+  saveFavorites();
+  loadFavorites();
+  
+  const currentLocation = document.getElementById('place').textContent;
+  updateFavoriteUI(currentLocation);
 }
 
 async function fetchHourlyForecast(lat, lng) {
@@ -404,8 +500,19 @@ async function fetchWeather(lat, lng) {
     const feelsLike = weatherData.main.feels_like
       ? Math.round(weatherData.main.feels_like)
       : 'N/A';
-    document.getElementById('current_temp').textContent = `${currentTemp}°C`;
+    const windSpeed = weatherData.wind?.speed ? `${Math.round(weatherData.wind.speed)} m/s` : '--';
+    const humidity = weatherData.main?.humidity ? `${weatherData.main.humidity}%` : '--';
+    
+    document.getElementById('current_temp').textContent = currentTemp;
     document.getElementById('feels_like').textContent = `${feelsLike}°C`;
+    
+    // New dashboard elements
+    const windEl = document.getElementById('wind_speed');
+    const humidEl = document.getElementById('humidity');
+    const descEl = document.getElementById('weather_desc');
+    if (windEl) windEl.textContent = windSpeed;
+    if (humidEl) humidEl.textContent = humidity;
+    if (descEl) descEl.textContent = weatherDescription;
     const animations = {
       clear: './lottie/clear.json',
       sunny: './lottie/sunny.json',
@@ -775,10 +882,10 @@ if (themeToggleBtn) {
 function updateThemeButton(isDarkMode) {
   if (themeToggleBtn) {
     if (isDarkMode) {
-      themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i> Switch to Light Mode';
+      themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
       themeToggleBtn.setAttribute('aria-label', 'Switch to Light Mode');
     } else {
-      themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i> Switch to Dark Mode';
+      themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
       themeToggleBtn.setAttribute('aria-label', 'Switch to Dark Mode');
     }
   }
@@ -803,3 +910,145 @@ observer.observe(document.body, { attributes: true });
 
 handleThemeTransition();
 // --- End Dark Mode Toggle ---
+
+/* ============================================
+   Modal Functions
+   ============================================ */
+function openModal(modalId) {
+  const overlay = document.getElementById('modalOverlay');
+  const modal = document.getElementById(modalId);
+  if (overlay && modal) {
+    overlay.classList.remove('hidden');
+    // Hide all modals first
+    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+    // Show requested modal
+    modal.classList.remove('hidden');
+    
+    // Trigger Status Check if opening status modal
+    if (modalId === 'statusModal') {
+      checkSystemStatus();
+    }
+  }
+}
+
+function closeModal(modalId) {
+  const overlay = document.getElementById('modalOverlay');
+  const modal = document.getElementById(modalId);
+  if (overlay && modal) {
+    overlay.classList.add('hidden');
+    modal.classList.add('hidden');
+  }
+}
+
+function closeAllModals(event) {
+  // Close if clicking the overlay (outside the modal)
+  if (event.target.id === 'modalOverlay') {
+    const overlay = document.getElementById('modalOverlay');
+    overlay.classList.add('hidden');
+    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+  }
+}
+
+// Close modals on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const overlay = document.getElementById('modalOverlay');
+    if (overlay && !overlay.classList.contains('hidden')) {
+      overlay.classList.add('hidden');
+      document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+    }
+  }
+});
+
+// Update UI based on favorite status
+function updateFavoriteUI(locationName) {
+  if (!locationName) return;
+  // Normalize checking (case-insensitive? or exact?)
+  const isFav = favorites.some(fav => fav.name === locationName);
+  
+  // Header Icon
+  const headerIcon = document.getElementById('header-fav-icon');
+  if (headerIcon) {
+    if (isFav) {
+      headerIcon.classList.remove('far');
+      headerIcon.classList.add('fas', 'is-favorite');
+    } else {
+      headerIcon.classList.remove('fas', 'is-favorite');
+      headerIcon.classList.add('far');
+    }
+  }
+
+  // Hero Add Button
+  const addFavBtn = document.getElementById('add-favorite');
+  if (addFavBtn) {
+    const icon = addFavBtn.querySelector('i');
+    if (icon) {
+      if (isFav) {
+        icon.classList.remove('far');
+        icon.classList.add('fas', 'is-favorite');
+      } else {
+        icon.classList.remove('fas', 'is-favorite');
+        icon.classList.add('far');
+      }
+    }
+  }
+}
+
+/* ============================================
+   System Status Logic
+   ============================================ */
+function checkSystemStatus() {
+  const updateStatus = (id, status) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const dot = el.querySelector('.status-dot');
+    const text = el.querySelector('.status-text');
+    
+    // Reset classes
+    dot.className = 'status-dot';
+    if (status === 'loading') dot.classList.add('loading');
+    if (status === 'error') dot.classList.add('error');
+    
+    // Update text
+    if (status === 'loading') text.textContent = 'Checking...';
+    else if (status === 'error') text.textContent = 'Outage / Slow';
+    else text.textContent = 'Operational';
+  };
+
+  // Set initial loading state
+  updateStatus('status-weather-state', 'loading');
+  updateStatus('status-map-state', 'loading');
+  updateStatus('status-backend-state', 'loading');
+
+  // Update Check Time
+  const now = new Date();
+  const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const checkEl = document.getElementById('status-last-checked');
+  if (checkEl) checkEl.innerHTML = `<i class="far fa-clock"></i> Last checked: Today, ${timeString}`;
+
+  // 1. Check Backend & Weather (Proxied)
+  // We ping the weather API. Even a 400 Bad Request means the backend is UP.
+  fetch('/api/weather')
+    .then(res => {
+      // 5xx means Server Error. Anything else means server is reachable.
+      if (res.status < 500) {
+        updateStatus('status-backend-state', 'success');
+        updateStatus('status-weather-state', 'success');
+      } else {
+        updateStatus('status-backend-state', 'error');
+        updateStatus('status-weather-state', 'error');
+      }
+    })
+    .catch(err => {
+      console.error('Status Check Failed:', err);
+      updateStatus('status-backend-state', 'error');
+      updateStatus('status-weather-state', 'error');
+    });
+
+  // 2. Check Map Tiles (OSM)
+  const img = new Image();
+  img.onload = () => updateStatus('status-map-state', 'success');
+  img.onerror = () => updateStatus('status-map-state', 'error');
+  // Load a random low-zoom tile to avoid cache
+  img.src = `https://tile.openstreetmap.org/0/0/0.png?t=${Date.now()}`;
+}
