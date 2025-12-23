@@ -4,6 +4,7 @@
   "description": "A web application to display sunrise, sunset times, current weather conditions, and forecasts for any location worldwide. Users can search for locations, select points on an interactive map, save favorite locations, and toggle between light and dark themes.",
   "main": "apikeys.example.js",
   "scripts": {
+    "start": "vercel dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
