@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupMapInteractionToggle();
   loadFavorites();
   initLocation();
+  updateCopyrightYear();
 });
 
 function initLocation() {
@@ -1051,4 +1052,11 @@ function checkSystemStatus() {
   img.onerror = () => updateStatus('status-map-state', 'error');
   // Load a random low-zoom tile to avoid cache
   img.src = `https://tile.openstreetmap.org/0/0/0.png?t=${Date.now()}`;
+}
+function updateCopyrightYear() {
+  const yearElement = document.getElementById('copyright-year');
+  if (yearElement) {
+    const currentYear = new Date().getFullYear();
+    yearElement.textContent = `© ${currentYear}`;
+  }
 }
